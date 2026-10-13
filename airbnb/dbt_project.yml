@@ -37,9 +37,11 @@ models:
       +materialized: table
     src:
       +materialized: ephemeral
+    fct:
+      +tags: ['fact']
     +post-hook:
       - "INSERT INTO {{ target.schema }}.audit_log VALUES ('{{ this }}', CURRENT_TIMESTAMP)"
-    grants:
+    +grants:
       select: ["transform", "reporter"]
 
 data_tests:
@@ -51,3 +53,6 @@ on-run-start:
       model_name STRING,
       run_timestamp TIMESTAMP
     )"
+
+vars:
+  user_name: default_user_name_for_this_project
