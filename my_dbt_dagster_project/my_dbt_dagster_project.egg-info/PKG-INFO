@@ -1,0 +1,13 @@
+Metadata-Version: 2.4
+Name: my_dbt_dagster_project
+Version: 0.1.0
+Summary: Add your description here
+Requires-Python: <3.15,>=3.10
+Description-Content-Type: text/markdown
+Requires-Dist: dagster
+Requires-Dist: dagster-cloud
+Requires-Dist: dagster-dbt
+Requires-Dist: dbt-core<1.12
+Requires-Dist: dbt-snowflake<1.12
+Provides-Extra: dev
+Requires-Dist: dagster-webserver; extra == "dev"

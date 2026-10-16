@@ -1,0 +1,47 @@
+// Malloy model for the incremental `fct_reviews` fact table built by dbt.
+//
+// Connection name "snowflake" must be configured via:
+//   Command Palette -> "Malloy: Edit Connections"
+// See ../malloy/README.md for the connection details to use.
+
+source: fct_reviews is snowflake.table('AIRBNB_NEW.DEV.FCT_REVIEWS') extend {
+  measure:
+    review_count is count()
+
+  view: by_listing is {
+    group_by: listing_id
+    aggregate: review_count
+    order_by: review_count desc
+  }
+
+  view: by_sentiment is {
+    group_by: review_sentiment
+    aggregate: review_count
+  }
+
+  view: reviews_over_time is {
+    group_by: review_month is review_date.month
+    aggregate: review_count
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Example: find reviews for a specific listing, e.g. listing_id = 3176
+// (mirrors the SQL from the course: SELECT * FROM FCT_REVIEWS WHERE listing_id=3176)
+// ---------------------------------------------------------------------------
+
+query: reviews_for_listing_3176 is fct_reviews -> {
+  where: listing_id = 3176
+  select:
+    listing_id
+    review_date
+    reviewer_name
+    review_text
+    review_sentiment
+}
+
+query: top_listings_by_reviews is fct_reviews -> by_listing
+
+query: reviews_by_sentiment is fct_reviews -> by_sentiment
+
+query: reviews_trend is fct_reviews -> reviews_over_time

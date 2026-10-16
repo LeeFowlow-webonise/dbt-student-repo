@@ -1,0 +1,58 @@
+// Core Malloy source definitions for the Airbnb dataset, built on top of the
+// tables materialized by the `airbnb_new` dbt project in Snowflake.
+//
+// Connection name "snowflake" must be configured via:
+//   Command Palette -> "Malloy: Edit Connections"
+// See ../malloy/README.md for the connection details to use.
+
+source: hosts is snowflake.table('AIRBNB_NEW.DEV.SRC_HOSTS') extend {
+  primary_key: host_id
+
+  measure:
+    host_count is count()
+    superhost_count is count() { where: is_superhost = 'true' or is_superhost = 't' }
+}
+
+source: listings is snowflake.table('AIRBNB_NEW.DEV.SRC_LISTINGS') extend {
+  primary_key: listing_id
+
+  measure:
+    listing_count is count()
+    avg_minimum_nights is avg(minimum_nights)
+
+  view: by_room_type is {
+    group_by: room_type
+    aggregate: listing_count
+  }
+}
+
+source: reviews is snowflake.table('AIRBNB_NEW.DEV.SRC_REVIEWS') extend {
+  measure:
+    review_count is count()
+
+  view: by_sentiment is {
+    group_by: review_sentiment
+    aggregate: review_count
+  }
+
+  view: reviews_over_time is {
+    group_by: review_month is review_date.month
+    aggregate: review_count
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Example queries — run these directly via the code-lens in VS Code.
+// ---------------------------------------------------------------------------
+
+query: host_superhost_ratio is hosts -> {
+  aggregate:
+    host_count
+    superhost_count
+}
+
+query: listings_by_room_type is listings -> by_room_type
+
+query: reviews_by_sentiment is reviews -> by_sentiment
+
+query: reviews_trend is reviews -> reviews_over_time

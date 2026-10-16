@@ -1,0 +1,11 @@
+{
+  // Malloy extension connection definitions for this workspace.
+  // This avoids manually pasting the private key into the Malloy UI,
+  // which can corrupt the PEM's newlines and cause:
+  //   "Invalid private key. The specified value must be a string in
+  //    pem format of type pkcs8"
+  //
+  // Instead, we point Malloy at the key FILE on disk.
+  "malloy.connectionMap": {
+  }
+}
